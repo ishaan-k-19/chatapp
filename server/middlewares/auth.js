@@ -31,7 +31,6 @@ const isAuthenticated = TryCatch((req, res, next) => {
 
     req.user = decodedData._id;
 
-
     next();
 
 });

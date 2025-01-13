@@ -269,7 +269,7 @@ const Groups = () => {
             onChange={(e) => setGroupNameUpdatedValue(e.target.value)}
           />
           <Button
-          className="rounded-full px-2"
+          className="rounded-full px-2 bg-neutral-700"
             onClick={updateGroupName}
             variant="outlined"
             disabled={isLoading}

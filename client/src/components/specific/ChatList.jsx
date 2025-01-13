@@ -41,7 +41,7 @@ const ChatList = ({
         <CardTitle className="md:block flex justify-between">
           <div className="md:hidden flex  items-center">
             <Logo/>
-            <p className=" dark:text-white text-[#6d28d9] font-bold text-3xl">ConvoCube</p>
+            <p className=" dark:text-white text-[#6d28d9] font-bold text-3xl bg-slate-50">ConvoCube</p>
           </div>
           <p className="hidden md:block">Chats</p>
           <MenuItems/>
@@ -53,7 +53,7 @@ const ChatList = ({
             {chats?.length === 0 && (
               <div className="text-center text-lg text-gray-500 mt-4 flex flex-col items-center gap-6">
                 No chats found
-                <Button className="w-2/5 dark:bg-neutral-900 text-neutral-500 bg-neutral-200" onClick={()=>dispatch(setIsSearch(true))}>
+                <Button className="w-2/5 dark:bg-neutral-900 text-neutral-500 bg-neutral-700" onClick={()=>dispatch(setIsSearch(true))}>
                   Add Friends
                 </Button>
               </div>

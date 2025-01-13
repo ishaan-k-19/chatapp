@@ -21,7 +21,6 @@ const AddMemberDialog = ({chatId}) => {
   const dispatch = useDispatch();
   
   
-  const [members, setmembers] = useState(sampleUsers)
   const [selectedMembers, setSelectedMembers] = useState([])
   
   const [ addMember, isLoadingAddMember] = useAsyncMutation(useAddGroupMembersMutation)

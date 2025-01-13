@@ -260,6 +260,8 @@ const sendAttachments = TryCatch(async (req, res, next) => {
 
     const files = req.files || [];
 
+    console.log(files)
+
     if(files.length < 1 ) return next(new ErrorHandler("Please upload Attachments", 400));
 
     if(files.length > 5) return next(new ErrorHandler("Files can't be more than 5", 400));
@@ -267,12 +269,12 @@ const sendAttachments = TryCatch(async (req, res, next) => {
 
     const [chat, me] = await Promise.all([
         Chat.findById(chatId),
-        User.findById(req.user, "name")]);
+        User.findById(req.user, "username")]);
 
         
     if(!chat) return next(new ErrorHandler("Chat not found", 404));
         
-
+ 
     if(files.length<1) return next(new ErrorHandler("No attachments found", 400));
 
     // Upload files here
@@ -283,20 +285,19 @@ const sendAttachments = TryCatch(async (req, res, next) => {
     const messageForDB = {
         content: "",
         attachments,
-        sender: me._id,
-        chat: chatId,
-    };
-
-
-
-    const messageForRealTime = {
-        ...messageForDB,
         sender: {
             _id: me._id,
             name: me.name,
             username: me.username,
             avatar: me.avatar,
         },
+        chat: chatId,
+    };
+
+
+
+    const messageForRealTime = {
+        ...messageForDB
     };
 
     
@@ -311,7 +312,7 @@ const sendAttachments = TryCatch(async (req, res, next) => {
 
     return res.status(200).json({
         success: true,
-        message
+        message: message,
     })
 })
 
@@ -448,9 +449,9 @@ const getMessages = TryCatch(async (req, res, next) => {
     const chat = await Chat.findById(chatId);
 
     if(!chat.members.includes(req.user.toString()))
-    return next(
-        new ErrorHandler("You are not allowed to access this chat", 403)
-    );
+        return next(
+            new ErrorHandler("You are not allowed to access this chat", 403)
+        );
 
     const [messages, totalMessagesCount] = await Promise.all([
         Message
@@ -467,10 +468,12 @@ const getMessages = TryCatch(async (req, res, next) => {
 
     return res.status(200).json({
         success: true,
-        messages: messages.reverse(),
+        messages: messages.reverse(), 
         totalPages,
+        totalMessages: totalMessagesCount, 
     });
 
 });
+
 
 export { newGroupChat, getMyChats, getMyGroups, addMembers, removeMembers, leaveGroup, sendAttachments, getChatDetails, renameGroup, deleteChat, getMessages, getGroupDetails };

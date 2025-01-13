@@ -35,15 +35,12 @@ const ChangePasswordDialog = () => {
         toast.error("New Password and Confirm Password did not match")
         return
     }
-    // Submit the form
     updatePassword("Changing Password...", {oldPassword: oldPassword.value, newPassword: newPassword.value})
   };
 
   useEffect(()=>{
     if(data){
-        // Close the dialog
         setOpen(false)
-        // Reset the form state
         oldPassword.clear();
         newPassword.clear();
         cPassword.clear();

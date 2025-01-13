@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 const TypingBubble = ({user, group}) => {
 
   return (
-    <div className="flex items-center gap-1 absolute bottom-0">
+    <div className="flex items-center gap-1 absolute bottom-[60px] md:bottom-[82px]">
       <div className="h-[5px] w-[5px] bg-neutral-500 rounded-full animate-bounce duration-500"/>
       <div className="h-[5px] w-[5px] bg-neutral-500 rounded-full animate-bounce duration-700"/>
       <div className="h-[5px] w-[5px] bg-neutral-500 rounded-full animate-bounce duration-1000"/>

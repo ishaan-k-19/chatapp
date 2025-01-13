@@ -394,7 +394,7 @@ const ProfileCard = ({ element, Icon, heading, handler, show = false, isEdit }) 
     onClick={handler}
     type="button"
   >
-    <div className={`flex ${isEdit ? "md:justify-center -ml-10 md:ml-0" : "justify-end"}`}>{Icon && Icon}</div>
+    <div className={`flex ${isEdit ? "md:justify-center -ml-10 md:ml-0" : "justify-end"}`}>{Icon}</div>
     <div className="flex flex-col">
       <div className={`flex flex-col ${isEdit ? "items-center" : "items-start"}`}>
         <p

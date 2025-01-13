@@ -9,7 +9,7 @@ import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
 import Chat from "../models/chat.js";
 import { getOtherMembers } from "../lib/helper.js";
 
-// Create a new user and save it to the database and save in cookie
+
 const newUser = TryCatch(async (req, res, next) => {
     const { name, email, username, password, bio } = req.body;
     const file = req.file;

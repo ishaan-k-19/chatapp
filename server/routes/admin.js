@@ -3,24 +3,31 @@ import { adminLogin, adminLogout, allChats, allMessages, allUsers, getAdminData,
 import { adminLoginValidator, validateHandler } from '../lib/validators.js';
 import { adminOnly } from '../middlewares/auth.js';
 
-
+// Create a new router instance
 const app = express.Router();
 
+// Route for admin login with validation
+app.post("/verify", adminLoginValidator(), validateHandler, adminLogin);
 
-app.post("/verify",adminLoginValidator() , validateHandler, adminLogin);
+// Route for admin logout
+app.get("/logout", adminLogout);
 
-app.get("/logout", adminLogout)
+// Only admin can access the following routes
+app.use(adminOnly);
 
-// Only admin can access these routes
-app.use(adminOnly)
-app.get("/", getAdminData)
+// Route to get admin data
+app.get("/", getAdminData);
 
-app.get("/users", allUsers)
+// Route to get all users
+app.get("/users", allUsers);
 
-app.get("/chats", allChats)
+// Route to get all chats
+app.get("/chats", allChats);
 
-app.get("/messages", allMessages)
+// Route to get all messages
+app.get("/messages", allMessages);
 
-app.get("/stats" , getDashboardStats)
+// Route to get dashboard statistics
+app.get("/stats", getDashboardStats);
 
 export default app;

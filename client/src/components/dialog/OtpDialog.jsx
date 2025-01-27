@@ -33,38 +33,44 @@ import { useDispatch } from "react-redux";
 import { userExists } from "@/redux/reducers/auth";
   
  
+// Zod schema for OTP validation: ensures OTP is a string of exactly 6 characters
 const FormSchema = z.object({
   otp: z.string().min(6, {
     message: "Your one-time password must be 6 characters.",
   }),
 })
 
-
 const OtpDialog = ({ verfied }) => {
-
+    // State to manage the dialog's open/close state based on 'verfied' prop
     const [openDialog, setOpenDialog] = useState(verfied)
 
+    // Hook to trigger the user verification API call
     const [verifyUser, isLoading, userData] = useAsyncMutation(useVerifyUserMutation)
 
+    // Redux dispatch function
     const dispatch = useDispatch()
 
+    // React Hook Form setup for form management
     const form = useForm({
-        resolver: zodResolver(FormSchema),
+        resolver: zodResolver(FormSchema),  // Use Zod for schema validation
         defaultValues: {
-          otp: "",
+          otp: "",  // Default value for OTP input
         },
-      })
+    })
     
-      const onSubmit = async(data) =>{
+    // Function to handle form submission
+    const onSubmit = async(data) =>{
+        // Trigger user verification API call with OTP data
         await verifyUser("Verfying OTP...", {data: data})
     }
 
+    // useEffect hook to handle user data after successful OTP verification
     useEffect(()=>{
         if(userData?.user?.verified){
-            setOpenDialog(true)
-            dispatch(userExists(userData?.user))
+            setOpenDialog(true)  // Open dialog if user is verified
+            dispatch(userExists(userData?.user))  // Dispatch action to store user data
         }
-    },[userData])
+    },[userData])  // Trigger when 'userData' changes
 
   return (
     <Dialog open={!openDialog}>

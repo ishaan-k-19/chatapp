@@ -18,38 +18,50 @@ import { useUpdatePasswordMutation } from '@/redux/api/api'
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
 
+/**
+ * ChangePasswordDialog Component
+ * This component renders a dialog allowing users to change their password.
+ */
 const ChangePasswordDialog = () => {
+  // Initializing input validation hooks for the old password, new password, and confirm password
+  const oldPassword = useInputValidation(""); // Manages old password input
+  const newPassword = useInputValidation(""); // Manages new password input
+  const cPassword = useInputValidation("");  // Manages confirm password input
 
-  const oldPassword = useInputValidation("");
-  const newPassword = useInputValidation("");
-  const cPassword = useInputValidation("");
-  const [open, setOpen] = useState(false)
+  // State to control the dialog's open/close state
+  const [open, setOpen] = useState(false);
 
+  // Redux dispatch function (not used directly in this code, but likely needed for further enhancements)
   const dispatch = useDispatch();
 
-  const [ updatePassword, isLoading, data ] = useAsyncMutation(useUpdatePasswordMutation)
+  // Hook for handling the password update API mutation
+  const [updatePassword, isLoading, data] = useAsyncMutation(useUpdatePasswordMutation);
 
+  /**
+   * Handles the form submission for changing the password.
+   */
   const submitHandler = () => {
-
-    if(cPassword.value !== newPassword.value) {
-        toast.error("New Password and Confirm Password did not match")
-        return
+    // Validates that the new password matches the confirm password
+    if (cPassword.value !== newPassword.value) {
+      toast.error("New Password and Confirm Password did not match");
+      return;
     }
-    updatePassword("Changing Password...", {oldPassword: oldPassword.value, newPassword: newPassword.value})
+    // Calls the mutation to update the password
+    updatePassword("Changing Password...", { oldPassword: oldPassword.value, newPassword: newPassword.value });
   };
 
-  useEffect(()=>{
-    if(data){
-        setOpen(false)
-        oldPassword.clear();
-        newPassword.clear();
-        cPassword.clear();
+  /**
+   * Effect to handle actions after the password has been successfully updated.
+   */
+  useEffect(() => {
+    if (data) {
+      setOpen(false); // Closes the dialog
+      oldPassword.clear(); // Clears the old password field
+      newPassword.clear(); // Clears the new password field
+      cPassword.clear(); // Clears the confirm password field
     }
-  }, [data])
+  }, [data]); // Runs whenever `data` changes
 
-
-
-    
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

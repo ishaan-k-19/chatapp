@@ -36,7 +36,7 @@ import {
 } from "../ui/tooltip";
 import { useTheme } from "../ui/theme-provider";
 
-
+// Lazy load dialogs
 const SearchDialog = lazy(() => import("../specific/Search"));
 const NotificationDialog = lazy(() => import("../specific/Notifications"));
 const NewGroupDialog = lazy(() => import("../specific/NewGroup"));
@@ -44,14 +44,14 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroup"));
 const Header = () => {
   const { isSearch, isNotification, isNewGroup } = useSelector(
     (state) => state.misc
-  );
-  const { notificationCount } = useSelector((state) => state.chat);
-  const [isLoading, setIsLoading] = useState(false);
+  );  // Accessing app state for dialog visibility
+  const { notificationCount } = useSelector((state) => state.chat);  // Notification count from chat state
+  const [isLoading, setIsLoading] = useState(false);  // Loading state for logout
 
+  const navigate = useNavigate();  // For navigation
+  const dispatch = useDispatch();  // For dispatching actions
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
+  // Handlers for opening dialogs and mobile state
   const handleMobile = () => {
     dispatch(setIsMobile(true));
   };
@@ -68,11 +68,13 @@ const Header = () => {
     navigate(`/groups`);
   };
 
+  // Utility function for capitalizing first letter
   function capitalizeFirstLetter(string) {
     if (!string) return string;
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
+  // Handler for logging out the user
   const logoutHandler = async () => {
     const toastId = toast.loading("Logging Out...");
     setIsLoading(true);
@@ -90,11 +92,12 @@ const Header = () => {
     }
   };
 
+  // Navigates to the profile page
   const handleProfile = () => {
     navigate("/profile")
   };
 
-  const {theme} = useTheme();
+  const { theme } = useTheme();  // Accessing theme context for dark/light mode
 
   return (
     <>
@@ -225,6 +228,7 @@ const Header = () => {
   );
 };
 
+// Icon Button component with tooltip and badge for notifications
 const IconBtn = ({ title, icon, onClick, value }) => {
   return (
     <Tooltip>

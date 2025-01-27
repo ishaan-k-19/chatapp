@@ -4,14 +4,18 @@ import api from "./api/api";
 import miscSlice from "./reducers/misc";
 import chatSlice from "./reducers/chat";
 
+
 const store = configureStore({
     reducer: {
-        [authSlice.name]: authSlice.reducer,
-        [miscSlice.name]: miscSlice.reducer,
-        [chatSlice.name]: chatSlice.reducer,
-        [api.reducerPath]: api.reducer,
+        [authSlice.name]: authSlice.reducer, // User authentication state
+        [miscSlice.name]: miscSlice.reducer, // UI modal and state flags
+        [chatSlice.name]: chatSlice.reducer, // Chat-related state
+        [api.reducerPath]: api.reducer, // API state managed by RTK Query
     },
-    middleware: (defaultMiddleware) => [...defaultMiddleware(), api.middleware]
-})
+    middleware: (getDefaultMiddleware) => [
+        ...getDefaultMiddleware(), 
+        api.middleware, // Include the API middleware for query caching, etc.
+    ],
+});
 
 export default store;

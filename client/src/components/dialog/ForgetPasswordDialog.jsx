@@ -18,26 +18,29 @@ import { useAsyncMutation } from '@/hooks/hooks'
 import { useForgotPasswordMutation, useResetPasswordMutation } from '@/redux/api/api'
 import toast from 'react-hot-toast'
 
+// ForgetPasswordDialog Component
 const ForgetPasswordDialog = () => {
     
-    const email = useInputValidation("");
-    const [openDialog, setOpenDialog] = useState(false)
-    const [open, setOpen] = useState(false);
+  // State to manage email input field and dialog visibility
+  const email = useInputValidation("");  // Email input validation
+  const [openDialog, setOpenDialog] = useState(false);  // State to open reset password dialog
+  const [open, setOpen] = useState(false);  // State to control the first dialog
 
-    const [ forgetPassword, isLoading, data] = useAsyncMutation(useForgotPasswordMutation)
+  // Mutation hook to handle forgot password API call
+  const [ forgetPassword, isLoading, data] = useAsyncMutation(useForgotPasswordMutation)
 
-
-
+  // Submit handler to trigger forgot password action
   const submitHandler = async () => {
-    await forgetPassword("Sending OTP...", {email: email.value})  
-};
+      await forgetPassword("Sending OTP...", {email: email.value})  
+  };
 
-useEffect(()=>{
-    if(data){
-        setOpenDialog(true)
-        setOpen(false)
-    }
-}, [data])
+  // useEffect hook to open the reset password dialog once OTP is sent successfully
+  useEffect(()=>{
+      if(data){
+          setOpenDialog(true);  // Open reset password dialog
+          setOpen(false);  // Close the forgot password dialog
+      }
+  }, [data]);
 
   return (
     <>
@@ -69,37 +72,42 @@ useEffect(()=>{
   )
 }
 
+// ResetPasswordDialog Component
 const ResetPasswordDialog = ({openDialog, setOpenDialog}) =>{
 
-    const [ resetPassword, isLoading, data] = useAsyncMutation(useResetPasswordMutation)
+  // Mutation hook for reset password API call
+  const [ resetPassword, isLoading, data] = useAsyncMutation(useResetPasswordMutation)
 
-
-
+  // State to manage OTP, new password and confirm password input values
   const newPassword = useInputValidation("");
   const cPassword = useInputValidation("");
   const otp = useInputValidation("");
 
+  // Function to close the dialog
+  const closeHandler = () =>{
+      setOpenDialog(false)
+  }
 
-    const closeHandler = () =>{
-        setOpenDialog(false)
-    }
+  // Submit handler to change the password after validating the inputs
+  const submitHandler = () => {
+      // Validate if new password and confirm password match
+      if(cPassword.value !== newPassword.value){
+          toast.error("Passwords did not match.")  // Show error toast if passwords don't match
+          return
+      }
+      // Proceed to reset password
+      resetPassword("Changing Password...", {otp: otp.value, newPassword: newPassword.value})
+  }
 
-    const submitHandler = () => {
-        if(cPassword.value !== newPassword.value){
-            toast.error("Passwords did not match.")
-            return
-        }
-        resetPassword("Changing Password...", {otp: otp.value, newPassword: newPassword.value})
-    }
-
-    useEffect(()=>{
-        if(data){
-            setOpenDialog(false)
-            otp.clear()
-            newPassword.clear()
-            cPassword.clear()
-          }
-        }, [data])
+  // useEffect hook to reset form and close dialog after successful password change
+  useEffect(()=>{
+      if(data){
+          setOpenDialog(false);  // Close the dialog on success
+          otp.clear();  // Clear OTP field
+          newPassword.clear();  // Clear new password field
+          cPassword.clear();  // Clear confirm password field
+      }
+  }, [data]);
 
     return (
         <Dialog open={openDialog} onOpenChange={closeHandler}>

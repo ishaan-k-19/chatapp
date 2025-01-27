@@ -7,6 +7,15 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from '../ui/button'
 
+/**
+ * ConfirmDeleteDialog Component
+ * This component displays a confirmation dialog for deleting an item (e.g., a group).
+ * 
+ * Props:
+ * - open: A boolean to control the open/close state of the dialog.
+ * - handleClose: A function to handle the dialog close action.
+ * - deleteHandler: A function to handle the delete action when confirmed.
+ */
 const ConfirmDeleteDialog = ({open, handleClose, deleteHandler}) => {
   return (
     <div>

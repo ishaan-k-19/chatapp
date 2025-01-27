@@ -20,40 +20,51 @@ import { ChatListSkeleton } from "../ui/chatListSkeleton";
 import { ScrollArea } from "../ui/scroll-area";
 
 const Search = () => {
+  // Selects the search state from the Redux store
   const { isSearch } = useSelector((state) => state.misc);
 
+  // Initializes query and mutation hooks
   const [searchUser] = useLazySearchUserQuery();
   const [sendFriendRequest, isLoadingSendFriendRequest] = useAsyncMutation(
     useSendFriendRequestMutation
   );
 
+  // Dispatch hook to dispatch actions to the Redux store
   const dispatch = useDispatch();
 
+  // Custom hook to manage and validate the search input
   const search = useInputValidation("");
 
+  // Local state to store the list of users fetched from the API
   const [users, setUsers] = useState([]);
 
+  // Handler for adding a user as a friend
   const addFriendHandler = async (id) => {
     await sendFriendRequest("Sending friend request...", { userId: id });
   };
 
+  // Close the search modal by dispatching an action
   const searchCloseHandler = () => {
     dispatch(setIsSearch(false));
   };
 
+  // Side effect for searching users as the input value changes
   useEffect(() => {
+    // If the search value is empty, reset the users state
     if (!search.value.trim()) return setUsers([]);
 
+    // Set a timeout to call the search API after 1 second of idle typing
     const timeOutId = setTimeout(() => {
       searchUser(search.value)
-        .then(({ data }) => setUsers(data.users))
-        .catch((e) => console.log(e));
+        .then(({ data }) => setUsers(data.users)) // Update users state with fetched users
+        .catch((e) => console.log(e)); // Log any errors
     }, 1000);
 
+    // Cleanup timeout on component unmount or search value change
     return () => {
       clearTimeout(timeOutId);
     };
-  }, [search.value]);
+  }, [search.value]); // Effect depends on search value
 
   return (
     <Dialog open={isSearch} onOpenChange={searchCloseHandler}>

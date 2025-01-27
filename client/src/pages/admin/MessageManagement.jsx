@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { useFetchData } from "6pp";
 import AdminLayout from "@/components/layout/AdminLayout";
+import DynamicTable from "@/components/shared/DynamicTable"; // Adjust the path based on your project structure
+import RenderAttachment from "@/components/shared/RenderAttachment";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import DynamicTable from "@/components/shared/DynamicTable"; // Adjust the path based on your project structure
-import { dashboardData } from "@/constants/sampleData";
-import { AtSignIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { fileFormat, transformImage } from "@/lib/features";
-import RenderAttachment from "@/components/shared/RenderAttachment";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useFetchData } from "6pp";
 import { server } from "@/constants/config";
 import { useErrors } from "@/hooks/hooks";
+import { fileFormat, transformImage } from "@/lib/features";
 import moment from "moment";
+import { useEffect, useState } from "react";
 
 const columns = [
   {

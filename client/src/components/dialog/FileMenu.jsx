@@ -10,62 +10,76 @@ import { useSendAttachmentsMutation } from "@/redux/api/api";
 import { ScrollArea } from "../ui/scroll-area";
 
 
-const FileMenu = ({chatId}) => {
+/**
+ * FileMenu Component:
+ * This component provides a pop-up menu for selecting and uploading files like images, audio, video, or other file types.
+ * It manages file selection, validation, and upload process.
+ * 
+ * Props:
+ * - chatId: The ID of the chat where files will be sent.
+ */
+const FileMenu = ({ chatId }) => {
+  
+  // Creating refs for file input elements (for images, audio, video, and other files)
+  const imageRef = useRef(null);
+  const audioRef = useRef(null);
+  const videoRef = useRef(null);
+  const fileRef = useRef(null);
 
-  const imageRef= useRef(null);
-  const audioRef= useRef(null);
-  const videoRef= useRef(null);
-  const fileRef= useRef(null);
+  // Using Redux hooks
+  const dispatch = useDispatch(); // Dispatch function to trigger Redux actions
 
-  const dispatch = useDispatch();
-
+  // Function to close the file menu by dispatching the `setIsFileMenu` action
   const closeFileMenu = () => dispatch(setIsFileMenu(false));
 
+  // Functions to trigger file input elements
   const selectImage = () => imageRef.current?.click();
   const selectAudio = () => audioRef.current?.click();
   const selectVideo = () => videoRef.current?.click();
   const selectFile = () => fileRef.current?.click();
 
-  const [ sendAttachments ] = useSendAttachmentsMutation()
+  // Calling the mutation hook to send attachments
+  const [sendAttachments] = useSendAttachmentsMutation();
 
+  // Function to handle file selection and upload
   const fileChangeHandler = async (e, key) => {
+    e.preventDefault(); // Preventing default form submission
 
-    e.preventDefault()
+    const files = Array.from(e.target.files); // Converting selected files to an array
 
-    const files = Array.from(e.target.files);
+    if (files.length <= 0) return; // If no files are selected, do nothing
 
-    if(files.length<=0) return;
+    // Limiting the number of files to 5
+    if (files.length > 5) return toast.error(`You can only send 5 ${key} at a time`);
 
-    if(files.length > 5) return toast.error(`You can only send 5  ${key} at a time`);
-
-    dispatch(setUploadingLoader(true));
+    dispatch(setUploadingLoader(true)); // Dispatch action to show loader during file upload
     
-    const toastId = toast.loading(`Send ${key}...`);
+    const toastId = toast.loading(`Sending ${key}...`); // Displaying loading toast while sending files
 
-    closeFileMenu();
+    closeFileMenu(); // Close the file menu after file selection
 
     try {
+      const myForm = new FormData(); // Creating FormData to send files as multipart form data
 
-      const myForm = new FormData();
+      myForm.append("chatId", chatId); // Appending chatId to the form
+      files.forEach(file => myForm.append("files", file)); // Appending selected files to the form
 
-      myForm.append("chatId", chatId);
-      files.forEach(file => myForm.append("files", file))
+      const res = await sendAttachments(myForm); // Sending the files using the mutation hook
 
-      const res = await sendAttachments(myForm)
-
-      if(res.data) toast.success(`${key} sent successfully`, { id:toastId });
-
-      else toast.error(`Failed to send ${key}`, { id:toastId })
-
+      // Handling response from the API
+      if (res.data) {
+        toast.success(`${key} sent successfully`, { id: toastId }); // Success toast
+      } else {
+        toast.error(`Failed to send ${key}`, { id: toastId }); // Error toast
+      }
     } catch (error) {
-      toast.error(error, { id: toastId})
+      toast.error(error, { id: toastId }); // Display error if something goes wrong
     } finally {
-      dispatch(setUploadingLoader(false));
+      dispatch(setUploadingLoader(false)); // Hide loader once the file upload process is complete
     }
-
-
   };
 
+  // Accessing the isFileMenu state from the Redux store to control the visibility of the file menu
   const isFileMenu = useSelector((state) => state.misc.isFileMenu);
 
   return (

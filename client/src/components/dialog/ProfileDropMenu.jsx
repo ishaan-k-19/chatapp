@@ -14,19 +14,22 @@ import { useDispatch, useSelector } from "react-redux";
 
 
 
-const ProfileDropMenu = ( {isGroup}) => {
+// ProfileDropMenu component with an optional 'isGroup' prop to conditionally render different options
+const ProfileDropMenu = ({ isGroup }) => {
 
-  const {isProfile} = useSelector((state) => state.misc)
+  const { isProfile } = useSelector((state) => state.misc);  // Getting the current profile state from Redux
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch();  // Initializing Redux dispatch function
 
-    const handleDeleteChat = () => {
-      dispatch(setIsDeleteMenu(true))
-    };
+  // Handler for displaying the delete menu
+  const handleDeleteChat = () => {
+    dispatch(setIsDeleteMenu(true));  // Dispatches action to show delete menu
+  };
 
-    const handleProfile = () => {
-      dispatch(setIsProfile(!isProfile))
-    };
+  // Handler for toggling the profile state
+  const handleProfile = () => {
+    dispatch(setIsProfile(!isProfile));  // Toggles between showing or hiding profile
+  };
   
     return (
         <DropdownMenu>

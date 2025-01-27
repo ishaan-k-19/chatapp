@@ -10,48 +10,51 @@ import { adminLogout } from '@/redux/thunks/admin';
 import { ModeToggle } from '../ui/mode-toggler';
 import { useTheme } from '../ui/theme-provider';
 
+// Custom styled Link component with styled-components
 const Link = styled(LinkComponent)`
     text-decoration: none;
     border-radius: 2rem;
     padding: 1rem 2rem;
-`
+`;
 
-
+// Admin tabs configuration (menu items in sidebar)
 const adminTabs = [
     {
         name: 'Dashboard',
         path: '/admin/dashboard',
-        icon: <LayoutDashboardIcon />
+        icon: <LayoutDashboardIcon />  // Icon for Dashboard tab
     },
     {
         name: 'Users',
         path: '/admin/users',
-        icon: <LucideUserCog2/>
+        icon: <LucideUserCog2/>  // Icon for Users tab
     },
     {
         name: 'Chats',
         path: '/admin/chats',
-        icon: <GroupIcon />
+        icon: <GroupIcon />  // Icon for Chats tab
     },
     {
         name: 'Messages',
         path: '/admin/messages',
-        icon: <MessageCircle />
+        icon: <MessageCircle />  // Icon for Messages tab
     },
 ];
 
+// Sidebar component which renders admin menu options
 const Sidebar = () => {
 
-    const {theme, systemTheme} = useTheme();
+    const { theme, systemTheme } = useTheme();  // Custom theme hook to determine the current theme
 
-    const mode = theme === "dark" || theme === "system" && systemTheme === "dark" ? "dark" : "light"
+    // Determines if the current theme is dark or light
+    const mode = theme === "dark" || (theme === "system" && systemTheme === "dark") ? "dark" : "light";
 
-    const location = useLocation();
+    const location = useLocation();  // Access current location/path
+    const dispatch = useDispatch();  // Redux dispatch hook
 
-    const dispatch = useDispatch();
-
-    const logoutHandler = ()=>{
-        dispatch(adminLogout())
+    // Logout handler dispatches adminLogout action
+    const logoutHandler = () => {
+        dispatch(adminLogout());
     }
 
     return (
@@ -85,13 +88,16 @@ const Sidebar = () => {
     );
 };
 
+// AdminLayout component that manages layout, including sidebar and children content
 const AdminLayout = ({ children }) => {
-    const { isAdmin} = useSelector(state => state.auth)
-    const [isMobile, setIsMobile] = useState(false);
+    const { isAdmin } = useSelector(state => state.auth);  // Check if the user is an admin
+    const [isMobile, setIsMobile] = useState(false);  // State to manage mobile drawer visibility
 
-    const handleMobile = () => setIsMobile(!isMobile);
+    const handleMobile = () => setIsMobile(!isMobile);  // Toggle mobile drawer
 
+    // If the user is not an admin, redirect to the admin login page
     if (!isAdmin) return <Navigate to="/admin" />;
+
 
     return (
         <div className="grid min-h-[100vh] grid-cols-12">

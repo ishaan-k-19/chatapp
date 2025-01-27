@@ -9,121 +9,124 @@ import { useErrors } from "@/hooks/hooks";
 import { transformImage } from "@/lib/features";
 import { useEffect, useState } from "react";
 
+// Define table columns and their properties for the DynamicTable
 const columns = [
   {
     accessorKey: "id",
-    header: "ID",
+    header: "ID", // Column header for ID
   },
   {
     accessorKey: "avatar",
-    header: "Avatar",
+    header: "Avatar", // Column header for Avatar
     cell: ({ row }) => (
       <img
-        src={row.original.avatar || row.original.members[0].avatar}
-        alt={`${row.original.name}'s avatar`}
-        className="w-10 h-10 rounded-full"
+        src={row.original.avatar || row.original.members[0].avatar} // Display the avatar of the chat or the first member
+        alt={`${row.original.name}'s avatar`} // Alt text for the avatar image
+        className="w-10 h-10 rounded-full" // Styling for the avatar image
       />
     ),
-    enableSorting: false,
+    enableSorting: false, // Disable sorting for this column
   },
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Name", // Column header for Name
   },
   {
     accessorKey: "groupChat",
-    header: "Group",
+    header: "Group", // Column header for Group
   },
   {
     accessorKey: "totalMembers",
-    header: "Total Members",
-    enableSorting: false,
+    header: "Total Members", // Column header for Total Members
+    enableSorting: false, // Disable sorting for this column
   },
   {
     accessorKey: "members",
-    header: "Members",
+    header: "Members", // Column header for Members
     cell: ({ row }) => (
       <div className="text-left flex items-center gap-1">
-        {row.original.totalMembers > 2 ? (
+        {row.original.totalMembers > 2 ? ( // If there are more than 2 members, display the avatar and name of the first member
           <>
             <Avatar className="w-8 h-8">
               <AvatarImage 
-                src={row.original.members[0].avatar }
-                alt={row.original.members[0].name}
+                src={row.original.members[0].avatar} // Display the first member's avatar
+                alt={row.original.members[0].name} // Alt text for the first member's avatar
               />
             </Avatar>
             <span>
-              {row.original.members[0].name} +{row.original.totalMembers}
+              {row.original.members[0].name} +{row.original.totalMembers} // Display member's name and total number of members
             </span>
           </>
         ) : (
-          <h5>No Members</h5>
+          <h5>No Members</h5> // If there are no members, display "No Members"
         )}
       </div>
     ),
-    enableSorting: true,
+    enableSorting: true, // Enable sorting for this column
   },
   {
     accessorKey: "totalMessages",
-    header: "Total Messages",
-    enableSorting: false,
+    header: "Total Messages", // Column header for Total Messages
+    enableSorting: false, // Disable sorting for this column
   },
   {
     accessorKey: "creator",
-    header: "Creator",
+    header: "Creator", // Column header for Creator
     cell: ({ row }) => (
       <div className="text-left flex items-center gap-1">
         <Avatar className="w-8 h-8">
           <AvatarImage
-            src={row.original.creator.avatar}
-            alt={row.original.creator.name}
+            src={row.original.creator.avatar} // Display the creator's avatar
+            alt={row.original.creator.name} // Alt text for the creator's avatar
           />
         </Avatar>
-        <span>{row.original.creator.name}</span>
+        <span>{row.original.creator.name}</span> 
       </div>
     ),
-    enableSorting: false,
+    enableSorting: false, // Disable sorting for this column
   },
 ];
 
-
+// Chat Management component for rendering the chat data
 const ChatMangement = () => {
+  // Fetch data using the custom hook and store loading, data, and error states
+  const { loading, data, error } = useFetchData(`${server}/api/v1/admin/chats`, "dashboard-chats");
 
-  const {loading, data, error } = useFetchData(`${server}/api/v1/admin/chats`, "dashboard-chats");
-
-  
+  // Use the custom useErrors hook to handle and display any errors
   useErrors([{
     isError: error,
     error: error
   }])
 
+  // State to store the rows of chat data for the table
   const [rows, setRows] = useState([]);
 
+  // Use effect to update rows once data is available
   useEffect(() => {
-    if(data){
+    if (data) {
       setRows(
         data.chats.map((i) => ({
           ...i,
-          id: i._id,
-          avatar: transformImage(i.avatar, 50),
+          id: i._id, // Set ID
+          avatar: transformImage(i.avatar, 50), // Transform avatar image
           creator: {
-            name: i.creator.name,
-            avatar: transformImage(i.creator.avatar, 50)
+            name: i.creator.name, // Set creator's name
+            avatar: transformImage(i.creator.avatar, 50) // Transform creator's avatar image
           }
         }))
       )
     }
-  }, [data]);
+  }, [data]); // Depend on data so effect runs when data changes
 
   return (
-    <AdminLayout>
-      <Card className="my-10 mx-5 h-[90svh]">
-        <CardHeader>
-          <CardTitle className="text-5xl text-center">All Chats</CardTitle>
+    <AdminLayout> 
+      <Card className="my-10 mx-5 h-[90svh]"> 
+        <CardHeader> 
+          <CardTitle className="text-5xl text-center">All Chats</CardTitle> 
         </CardHeader>
-        <CardContent className="p-10">
+        <CardContent className="p-10"> 
           <div>
-            <DynamicTable columns={columns} data={rows} />
+            <DynamicTable columns={columns} data={rows} /> 
           </div>
         </CardContent>
       </Card>

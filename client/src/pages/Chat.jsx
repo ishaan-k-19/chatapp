@@ -46,41 +46,41 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const Chat = ({ chatId, user, otherUser }) => {
-  const containerRef = useRef(null);
-  const inputRef = useRef(null);
-  const bottomRef = useRef(null);
+  const containerRef = useRef(null);  // Ref for the messages container
+  const inputRef = useRef(null);  // Ref for the message input field
+  const bottomRef = useRef(null);  // Ref for the bottom of the chat for scrolling
 
-  const socket = getSocket();
-  const navigate = useNavigate();
+  const socket = getSocket();  // Retrieve the socket connection
+  const navigate = useNavigate();  // React Router's hook for navigation
 
-  const [IamTyping, setIamTyping] = useState(false);
-  const [userTyping, setUserTyping] = useState(false);
-  const [senderTyping, setSenderTyping] = useState("");
+  const [IamTyping, setIamTyping] = useState(false);  // Track if the current user is typing
+  const [userTyping, setUserTyping] = useState(false);  // Track if the other user is typing
+  const [senderTyping, setSenderTyping] = useState("");  // Store who is typing
 
-  const typingTimeout = useRef(null);
+  const typingTimeout = useRef(null);  // To store the typing timeout reference
 
-  const [message, setMessage] = useState("");
-  const [page, setPage] = useState(1);
-  const [messages, setMessages] = useState([]);
-  const dispatch = useDispatch();
+  const [message, setMessage] = useState("");  // Store the current message input
+  const [page, setPage] = useState(1);  // Current page of messages
+  const [messages, setMessages] = useState([]);  // Store the chat messages
+  const dispatch = useDispatch();  // Redux dispatch to trigger actions
 
   const chatDetails = useChatDetailsQuery({
-    chatId,
-    skip: !chatId,
+    chatId,  // Fetch chat details based on chatId
+    skip: !chatId,  // Skip if there's no chatId
   });
 
-  const { refetch } = useMyChatsQuery("");
+  const { refetch } = useMyChatsQuery("");  // Refetch to update chat list if needed
 
-  const isGroup = chatDetails?.data?.chat?.groupChat;
+  const isGroup = chatDetails?.data?.chat?.groupChat;  // Check if the chat is a group
 
-  const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
+  const oldMessagesChunk = useGetMessagesQuery({ chatId, page });  // Fetch old messages for pagination
 
   const { data: oldMessages, setData: setOldMessages } = useInfiniteScrollTop(
-    containerRef,
-    oldMessagesChunk.data?.totalPages,
-    page,
-    setPage,
-    oldMessagesChunk.data?.messages
+    containerRef,  // Infinite scroll hook for messages
+    oldMessagesChunk.data?.totalPages,  // Total pages for pagination
+    page,  // Current page
+    setPage,  // Function to update the page
+    oldMessagesChunk.data?.messages  // Old messages to load initially
   );
 
   const errors = [
@@ -88,55 +88,59 @@ const Chat = ({ chatId, user, otherUser }) => {
     { isError: oldMessagesChunk.isError, error: oldMessagesChunk.error },
   ];
 
-  const members = chatDetails?.data?.chat?.members;
+  const members = chatDetails?.data?.chat?.members;  // List of chat members
 
+  // Handle message input changes
   const messageOnChange = (e) => {
     setMessage(e.target.value);
 
     if (!IamTyping) {
-      socket.emit(START_TYPING, { members, chatId, user });
+      socket.emit(START_TYPING, { members, chatId, user });  // Emit typing start event
       setIamTyping(true);
     }
 
-    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);  // Clear existing typing timeout
 
     typingTimeout.current = setTimeout(() => {
-      socket.emit(STOP_TYPING, { members, chatId });
+      socket.emit(STOP_TYPING, { members, chatId });  // Emit typing stop event after delay
       setIamTyping(false);
-    }, [3000]);
+    }, [3000]);  // Delay typing stop after 3 seconds
   };
 
+  // Handle message submission
   const submitHandler = (e) => {
     e.preventDefault();
 
-    if (!message.trim()) return;
+    if (!message.trim()) return;  // Avoid sending empty messages
 
-    // Emitting messages to the server
+    // Emit new message event to the server
     socket.emit(NEW_MESSAGE, { chatId, members, message });
-    setMessage("");
+    setMessage("");  // Clear message input
     typingTimeout.current = setTimeout(() => {
       socket.emit(STOP_TYPING, { members, chatId });
       setIamTyping(false);
-    }, [0]);
+    }, [0]);  // Immediately stop typing after sending a message
   };
 
+  // Navigate back to previous page
   const navigateBack = () => {
     navigate("/");
   };
 
   useEffect(() => {
-    socket.emit(CHAT_JOINED, { userId: user._id, members });
-    dispatch(removeNewMessagesAlert(chatId));
+    socket.emit(CHAT_JOINED, { userId: user._id, members });  // Emit event when the user joins the chat
+    dispatch(removeNewMessagesAlert(chatId));  // Remove new message alert from the chat
 
     return () => {
-      setMessages([]);
-      setMessage("");
-      setOldMessages([]);
-      setPage(1);
-      socket.emit(CHAT_LEAVE, { userId: user._id, members });
+      setMessages([]);  // Reset messages on component unmount
+      setMessage("");  // Clear message input
+      setOldMessages([]);  // Clear old messages
+      setPage(1);  // Reset page to 1
+      socket.emit(CHAT_LEAVE, { userId: user._id, members });  // Emit event when the user leaves the chat
     };
   }, [chatId]);
 
+  // Scroll to the bottom of the chat when new messages are added
   useEffect(() => {
     requestAnimationFrame(() => {
       if (bottomRef.current) {
@@ -145,25 +149,29 @@ const Chat = ({ chatId, user, otherUser }) => {
     });
   }, [messages]);
 
+  // Handle chat errors and navigate back if error occurs
   useEffect(() => {
     if (chatDetails.isError) return navigate("/");
   }, [chatDetails.isError]);
 
+  // Handle file menu opening on button click or "Enter" key
   const handleFileOpen = (e) => {
     if (e.type === "click" || (e.type === "keydown" && e.key !== "Enter")) {
       dispatch(setIsFileMenu(true));
     }
   };
 
+  // Listener for new messages
   const newMessagesListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
-      setMessages((prev) => [...prev, data.message]);
-      refetch();
+      setMessages((prev) => [...prev, data.message]);  // Add new message to the chat
+      refetch();  // Refetch chat data if needed
     },
     [chatId]
   );
 
+  // Listener for the start of typing
   const startTypingListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
@@ -173,6 +181,7 @@ const Chat = ({ chatId, user, otherUser }) => {
     [chatId]
   );
 
+  // Listener for the stop of typing
   const stopTypingListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
@@ -182,21 +191,22 @@ const Chat = ({ chatId, user, otherUser }) => {
     [chatId]
   );
 
+  // Listener for alerts
   const alertListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
       const messageForAlert = {
         content: data.message,
         sender: {
-          _id: "dsadasdasdasdasdas",
-          name: "Admin",
-          avatar: "https://example.com/admin-avatar.jpg",
+          _id: "dsadasdasdasdasdas",  // Placeholder for sender ID
+          name: "Admin",  // Placeholder for sender name
+          avatar: "https://example.com/admin-avatar.jpg",  // Placeholder for sender avatar
         },
         chat: chatId,
         createdAt: new Date().toISOString(),
       };
 
-      setMessages((prev) => [...prev, messageForAlert]);
+      setMessages((prev) => [...prev, messageForAlert]);  // Add alert message to the chat
     },
     [chatId]
   );
@@ -208,11 +218,13 @@ const Chat = ({ chatId, user, otherUser }) => {
     [STOP_TYPING]: stopTypingListener,
   };
 
+  // Set up socket event listeners
   useSocketEvents(socket, eventHandler);
-  useErrors(errors);
+  useErrors(errors);  // Handle errors using the custom hook
 
-  const allMessages = [...oldMessages, ...messages];
+  const allMessages = [...oldMessages, ...messages];  // Combine old and new messages for display
 
+  // Handle "Enter" key event to submit the message
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Enter") {
@@ -233,6 +245,7 @@ const Chat = ({ chatId, user, otherUser }) => {
     };
   }, [submitHandler]);
 
+  // Render loading state while chat details are loading
   return chatDetails.isLoading ? (
     <Skeleton />
   ) : (
@@ -245,7 +258,7 @@ const Chat = ({ chatId, user, otherUser }) => {
               <Avatar className="object-cover shadow-lg border">
                 <AvatarImage
                   className="object-cover"
-                  src={transformImage(otherUser?.avatar?.url)}
+                  src={transformImage(otherUser?.avatar?.url)}  // Display avatar image of the other user
                 />
               </Avatar>
               <div>
@@ -300,9 +313,7 @@ const Chat = ({ chatId, user, otherUser }) => {
               <FileMenu chatId={chatId} />
             </Button>
             <input
-              className={
-                "w-[100%] rounded-full py-3 px-14 dark:bg-neutral-700 dark:text-white bg-neutral-100 text-black"
-              }
+              className="w-[100%] rounded-full py-3 px-14 dark:bg-neutral-700 dark:text-white bg-neutral-100 text-black"
               placeholder="Type Message here..."
               value={message}
               onChange={messageOnChange}

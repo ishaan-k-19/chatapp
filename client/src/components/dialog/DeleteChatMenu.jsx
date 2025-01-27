@@ -18,38 +18,51 @@ import { useNavigate } from 'react-router-dom';
   
 
 
-const DeleteChatMenu = ({chatId, isGroup}) => {
+/**
+ * DeleteChatMenu Component:
+ * This component displays a dialog where the user can confirm the deletion of a chat or leaving a group.
+ * 
+ * Props:
+ * - chatId: The ID of the chat or group to be deleted or left.
+ * - isGroup: A boolean to determine whether the item is a group or a chat.
+ */
+const DeleteChatMenu = ({ chatId, isGroup }) => {
+    
+  // Retrieving isDeleteMenu state from Redux store
+  const { isDeleteMenu } = useSelector((state) => state.misc);
 
-    const {isDeleteMenu } = useSelector((state) => state.misc);
+  // Initializing mutation hooks for deleting chat and leaving group
+  const [deleteChat, _, deleteChatData] = useAsyncMutation(useDeleteChatMutation);
+  const [leaveGroup, __, leaveGroupData] = useAsyncMutation(useLeaveGroupMutation);
 
-    const [deleteChat,_, deleteChatData] = useAsyncMutation(useDeleteChatMutation);
+  // Hook for navigating between pages
+  const navigate = useNavigate();
 
-    const [leaveGroup,__, leaveGroupData] = useAsyncMutation(useLeaveGroupMutation);
+  // Redux dispatch function to trigger actions
+  const dispatch = useDispatch();
 
-    const navigate = useNavigate();
+  // Function to close the delete menu by dispatching an action
+  const closeHandler = () => {
+      dispatch(setIsDeleteMenu(false)); // Sets isDeleteMenu to false to close the dialog
+  };
 
-    const dispatch = useDispatch();
+  // Function to handle leaving the group
+  const leaveGroupHandler = () => {
+      closeHandler(); // Close the delete menu
+      leaveGroup("Leaving Group...", chatId); // Trigger the mutation for leaving the group
+      navigate("/"); // Navigate to the home page
+  };
 
+  // Function to handle deleting the chat
+  const deleteChatHandler = () => {
+      closeHandler(); // Close the delete menu
+      deleteChat("Deleting Chat...", chatId); // Trigger the mutation for deleting the chat
+  };
 
-    const closeHandler = () => {
-        dispatch(setIsDeleteMenu(false))
-    };
-
-    const leaveGroupHandler = () => {
-        closeHandler();
-        leaveGroup("Leaving Group...", chatId);
-        navigate("/")
-    };
-    const deleteChatHandler = () =>{
-        closeHandler();
-        deleteChat("Deleting Chat...", chatId);
-    };
-
-    useEffect(()=>{
-        if(deleteChatData || leaveGroupData) navigate("/");
-    },[deleteChatData, leaveGroupData])
-
-
+  // Effect hook to navigate when either delete or leave action is successful
+  useEffect(() => {
+      if (deleteChatData || leaveGroupData) navigate("/"); // Navigate to home if deletion or leaving is successful
+  }, [deleteChatData, leaveGroupData]);
 
   return (
 

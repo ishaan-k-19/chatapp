@@ -1,1 +1,1 @@
-export const server = "https://api.convocube.online"; 
+export const server = "http://localhost:3000"; 
